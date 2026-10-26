@@ -7,7 +7,7 @@ export const wagmiConfig = createConfig({
   connectors: [injected()],
   multiInjectedProviderDiscovery: false,
   transports: {
-    [elysiumTestnet.id]: http(),
+    [elysiumTestnet.id]: http("https://rpc.test.mezo.org"),
   },
   ssr: true,
 });
