@@ -7,7 +7,7 @@ import { ADDRESSES, elyMarketAbi, elystAbi } from "./contracts";
 
 const ZERO = "0x0000000000000000000000000000000000000000" as const;
 
-// The fee a provider pays on services, with the ELYST discount if it applies.
+// The fee a provider pays on services, with the MEZO discount if it applies.
 // The deal page shows the standard fee. Holders pay this lower fee when paid out.
 export function useFeeFor(provider?: Address) {
   const base = useReadContract({
