@@ -7,7 +7,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /// @title ElyPay
-/// @notice Payment links for USDC. Money goes from the payer to the receiver.
+/// @notice Payment links for MUSD. Money goes from the payer to the receiver.
 /// The contract never holds funds.
 contract ElyPay is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;

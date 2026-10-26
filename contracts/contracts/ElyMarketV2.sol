@@ -7,7 +7,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /// @title ElyMarketV2
-/// @notice Profiles, handles, services and pay-when-done deals in USDC,
+/// @notice Profiles, handles, services and pay-when-done deals in MUSD,
 /// with disputes. A deal holds the customer's money in this contract until
 /// the customer releases it, the review time ends after delivery, a referee
 /// rules on a dispute, or the money is refunded.
@@ -223,7 +223,7 @@ contract ElyMarketV2 is Ownable, ReentrancyGuard {
 
     // Deals
 
-    /// @notice Pay into the contract. The customer must approve USDC first
+    /// @notice Pay into the contract. The customer must approve MUSD first
     /// and chooses how long they will have to review the job after delivery.
     function createDeal(
         address provider,
@@ -451,7 +451,8 @@ contract ElyMarketV2 is Ownable, ReentrancyGuard {
     /// Use the zero address to turn the discount off.
     function setDiscount(address token, uint256 minBalance, uint16 bps) external onlyOwner {
         require(bps <= MAX_FEE_BPS, "Fee too high");
-        require(token == address(0) || token.code.length > 0, "Not a contract");
+        // No code-size check: MEZO on Mezo is a built-in token (precompile).
+        // Reads are wrapped in try/catch in _feeFor, so a bad address cannot block payouts.
         discountToken = IERC20(token);
         discountMinBalance = minBalance;
         discountFeeBps = bps;
