@@ -1,17 +1,20 @@
 import { defineChain } from "viem";
 
+// Name kept so other files keep working. This is the Mezo testnet.
 export const elysiumTestnet = defineChain({
-  id: 99801,
-  name: "Elysium Testnet",
-  nativeCurrency: { name: "HYPE", symbol: "HYPE", decimals: 18 },
+  id: 31611,
+  name: "Mezo Testnet",
+  nativeCurrency: { name: "Bitcoin", symbol: "BTC", decimals: 18 },
   rpcUrls: {
-    default: { http: ["https://testnet-rpc.elysium.kinetiq.xyz"] },
+    default: { http: ["https://rpc.test.mezo.org"] },
   },
   blockExplorers: {
     default: {
-      name: "Elysium Explorer",
-      url: "https://elysium.kinetiq.xyz/testnet-explorer",
+      name: "Mezo Explorer",
+      url: "https://explorer.test.mezo.org",
     },
   },
   testnet: true,
 });
+
+export const mezoTestnet = elysiumTestnet;
