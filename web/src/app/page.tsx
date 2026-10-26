@@ -1,7 +1,6 @@
 import Link from "next/link";
 import CreateLinkForm from "@/components/CreateLinkForm";
 import HeroShowcase from "@/components/HeroShowcase";
-import { LINKS } from "@/lib/links";
 import { roadmap } from "@/lib/roadmap";
 
 const icon = {
@@ -22,11 +21,11 @@ export default function Home() {
       <section className="hero">
         <div className="wrap hero-inner">
           <div>
-            <h1>Send a link. Get paid in USDC.</h1>
+            <h1>Send a link. Get paid in MUSD.</h1>
             <p className="lede">
               Elystation turns a payment into a simple link with the amount,
               the reason and a receipt. Hire people with your money held until
-              the job is done. Built on Elysium for the Ascend ecosystem.
+              the job is done. Built on Mezo, paid in Bitcoin-backed MUSD.
             </p>
             <div className="hero-cta">
               <a className="btn btn-mint" href="#create">
@@ -74,8 +73,11 @@ export default function Home() {
                   <path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" />
                 </svg>
               </span>
-              <h3>Built on Elysium</h3>
-              <p>Made for speed on Elysium, a chain that settles to HyperEVM.</p>
+              <h3>Built on Mezo</h3>
+              <p>
+                Paid in MUSD, the stablecoin backed by Bitcoin. Live on the
+                Mezo testnet.
+              </p>
             </div>
             <div className="fact">
               <span className="fact-icon">
@@ -115,7 +117,7 @@ export default function Home() {
               <span className="step-num">3</span>
               <h3>Get paid</h3>
               <p>
-                The payer sends USDC. It lands in your wallet, and both of you
+                The payer sends MUSD. It lands in your wallet, and both of you
                 get a receipt.
               </p>
             </div>
@@ -124,68 +126,67 @@ export default function Home() {
 
         <section id="ascend" className="ascend">
           <div className="section-head">
-            <h2>Built for Ascend on Elysium</h2>
+            <h2>Built for Mezo</h2>
             <p>
-              Ascend launches tokens on Elysium and supports them after launch.
-              Elystation is built to launch through Ascend, and to bring the
-              kind of activity Ascend looks for.
+              Mezo lets people borrow against their Bitcoin without selling it.
+              Elystation gives that MUSD something to do: get paid, pay for
+              work, and hold money safely until a job is done.
             </p>
           </div>
           <div className="asc-grid">
             <div className="asc-item">
-              <h3>One asset: USDC</h3>
+              <h3>One asset: MUSD</h3>
               <p>
-                Payments, deals and fees are all in USDC, the asset Ascend
-                launch pools trade against. People who earn it here already
-                hold what they need to buy tokens launched through Ascend.
+                Payments, deals and fees are all in MUSD. Someone who borrowed
+                MUSD against their Bitcoin can spend it here, and someone who
+                earns it keeps a stable dollar value.
               </p>
             </div>
             <div className="asc-item">
-              <h3>A hiring layer for builders</h3>
+              <h3>Pay when done, in MUSD</h3>
               <p>
-                Teams that launch on Ascend need designers, developers,
-                moderators and marketers. Hire them here and pay in USDC, with
-                the money held until the work is done.
+                Hire designers, developers, moderators and marketers. The
+                payment is held by the contract until the work is confirmed,
+                and a referee can step in if there is a dispute.
               </p>
             </div>
             <div className="asc-item">
-              <h3>Usage anyone can check</h3>
+              <h3>MEZO lowers the fee</h3>
               <p>
-                Every payment and job is public on the chain. Ascend looks at
-                holders, volume and clean distribution. Our token page shows
-                our live numbers.
+                Providers who hold MEZO pay 0.2% instead of 0.5% on services.
+                The rule is in the contract and anyone can check it on chain.
               </p>
             </div>
           </div>
           <ol className="life">
             <li className="life-step">
-              <strong>Launch</strong>
-              Planned. A USDC pool, with the allocation published first.
+              <strong>Borrow</strong>
+              Borrow MUSD against Bitcoin on Mezo.
             </li>
             <li className="life-step">
-              <strong>Ascended</strong>
-              Holders, volume and clean distribution.
+              <strong>Pay</strong>
+              Pay a link, or hire someone from the directory.
             </li>
             <li className="life-step">
-              <strong>HyperCore spot</strong>
-              Part of our creator fee set aside for the listing.
+              <strong>Hold</strong>
+              The contract holds the money until the job is confirmed.
             </li>
             <li className="life-step">
-              <strong>HIP-3 perps</strong>
-              Later, once spot liquidity exists.
+              <strong>Release</strong>
+              The provider is paid in MUSD, with a lower fee for MEZO holders.
             </li>
           </ol>
           <div className="asc-actions">
             <Link className="btn btn-primary" href="/token">
-              See our token plan
+              See how we use Mezo
             </Link>
             <a
               className="btn btn-secondary"
-              href={LINKS.ascend}
+              href="https://mezo.org/feature/borrow"
               target="_blank"
               rel="noreferrer"
             >
-              About Ascend
+              Get MUSD
             </a>
           </div>
         </section>

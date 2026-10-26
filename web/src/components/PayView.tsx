@@ -14,12 +14,15 @@ import {
 import { BaseError, formatUnits, parseEventLogs, parseUnits } from "viem";
 import { elysiumTestnet } from "@/lib/chain";
 import { ADDRESSES, USDC_DECIMALS, elyPayAbi, usdcAbi } from "@/lib/contracts";
-import { feeOverrides } from "@/lib/gas";
 import { useFeeText } from "@/lib/useFee";
 
 const ZERO = "0x0000000000000000000000000000000000000000" as const;
 
-type Action = "faucet" | "approve" | "pay";
+// MUSD on Mezo is borrowed against test BTC, so there is no faucet button.
+const GET_MUSD = "https://mezo.org/feature/borrow";
+const BTC_FAUCET = "https://faucet.test.mezo.org/";
+
+type Action = "approve" | "pay";
 
 function money(value: bigint) {
   const n = Number(formatUnits(value, USDC_DECIMALS));
@@ -94,7 +97,6 @@ export default function PayView({ id }: { id: string }) {
 
   useEffect(() => {
     if (!receipt) return;
-    if (lastAction === "faucet") balanceQuery.refetch();
     if (lastAction === "approve") allowanceQuery.refetch();
     if (lastAction === "pay") {
       linkQuery.refetch();
@@ -152,7 +154,7 @@ export default function PayView({ id }: { id: string }) {
       total = parseUnits(custom.trim(), USDC_DECIMALS);
       if (total <= BigInt(0)) amountError = "Enter an amount above 0.";
     } catch {
-      amountError = "Use up to 6 decimal places.";
+      amountError = "Enter a valid amount.";
     }
   }
 
@@ -198,24 +200,10 @@ export default function PayView({ id }: { id: string }) {
     (receiptError ? niceError(receiptError) : "") ||
     (reverted ? "The transaction failed on the network. Try again." : "");
 
-  async function send(next: Action) {
+  function send(next: Action) {
     setLocalError("");
-    if (!publicClient) {
-      setLocalError("The network is not ready. Try again in a moment.");
-      return;
-    }
     setLastAction(next);
     try {
-      const fees = await feeOverrides(publicClient);
-      if (next === "faucet") {
-        writeContract({
-          address: ADDRESSES.usdc,
-          abi: usdcAbi,
-          functionName: "faucet",
-          chainId: elysiumTestnet.id,
-          ...fees,
-        });
-      }
       if (next === "approve") {
         writeContract({
           address: ADDRESSES.usdc,
@@ -223,7 +211,6 @@ export default function PayView({ id }: { id: string }) {
           functionName: "approve",
           args: [ADDRESSES.elyPay, total],
           chainId: elysiumTestnet.id,
-          ...fees,
         });
       }
       if (next === "pay") {
@@ -233,7 +220,6 @@ export default function PayView({ id }: { id: string }) {
           functionName: "pay",
           args: [linkId, total],
           chainId: elysiumTestnet.id,
-          ...fees,
         });
       }
     } catch (err) {
@@ -260,7 +246,7 @@ export default function PayView({ id }: { id: string }) {
         disabled={switching}
         onClick={() => switchChain({ chainId: elysiumTestnet.id })}
       >
-        Switch to Elysium
+        Switch to Mezo
       </button>
     );
   } else if (total <= BigInt(0)) {
@@ -273,20 +259,35 @@ export default function PayView({ id }: { id: string }) {
     main = (
       <>
         <p className="notice">
-          Your balance is {money(balance)} USDC. This payment needs{" "}
-          {money(total)} USDC.
+          Your balance is {money(balance)} MUSD. This payment needs{" "}
+          {money(total)} MUSD.
+        </p>
+        <a
+          className="btn btn-primary btn-block"
+          href={GET_MUSD}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Get MUSD on Mezo
+        </a>
+        <p className="hint">
+          On the Mezo testnet, you get MUSD by borrowing against test BTC. You
+          also need a little test BTC for network fees.{" "}
+          <a
+            href={BTC_FAUCET}
+            target="_blank"
+            rel="noreferrer"
+            style={{ textDecoration: "underline" }}
+          >
+            Get free test BTC
+          </a>
         </p>
         <button
-          className="btn btn-primary btn-block"
-          disabled={busy}
-          onClick={() => send("faucet")}
+          className="link-button"
+          onClick={() => balanceQuery.refetch()}
         >
-          {busy ? busyLabel : "Get 1,000 test USDC"}
+          I have MUSD now. Refresh my balance
         </button>
-        <p className="hint">
-          Test USDC is free on this testnet. You also need a little HYPE for
-          network fees.
-        </p>
       </>
     );
   } else if (needsApproval) {
@@ -297,10 +298,10 @@ export default function PayView({ id }: { id: string }) {
           disabled={busy}
           onClick={() => send("approve")}
         >
-          {busy ? busyLabel : `Approve ${money(total)} USDC`}
+          {busy ? busyLabel : `Approve ${money(total)} MUSD`}
         </button>
         <p className="hint">
-          First, approve USDC for this payment. Then you can send it.
+          First, approve MUSD for this payment. Then you can send it.
         </p>
       </>
     );
@@ -312,7 +313,7 @@ export default function PayView({ id }: { id: string }) {
           disabled={busy}
           onClick={() => send("pay")}
         >
-          {busy ? busyLabel : `Pay ${money(total)} USDC`}
+          {busy ? busyLabel : `Pay ${money(total)} MUSD`}
         </button>
         <p className="hint">The money goes straight to the receiver.</p>
       </>
@@ -335,7 +336,7 @@ export default function PayView({ id }: { id: string }) {
       {fixed || paid ? (
         <p className="amount">
           {money(paid ? paid.amount : linkAmount)}
-          <span className="unit">USDC</span>
+          <span className="unit">MUSD</span>
         </p>
       ) : (
         <div className="amount-wrap amount-wrap-lg">
@@ -343,11 +344,11 @@ export default function PayView({ id }: { id: string }) {
             inputMode="decimal"
             autoComplete="off"
             placeholder="0.00"
-            aria-label="Amount in USDC"
+            aria-label="Amount in MUSD"
             value={custom}
             onChange={(e) => setCustom(e.target.value)}
           />
-          <span>USDC</span>
+          <span>MUSD</span>
         </div>
       )}
 
@@ -368,18 +369,18 @@ export default function PayView({ id }: { id: string }) {
         )}
         <div className="row">
           <dt>Network</dt>
-          <dd>Elysium Testnet</dd>
+          <dd>Mezo Testnet</dd>
         </div>
         <div className="row">
           <dt>Fee</dt>
-          <dd>{paid ? `${money(paid.fee)} USDC` : feeText}</dd>
+          <dd>{paid ? `${money(paid.fee)} MUSD` : feeText}</dd>
         </div>
         {paid && (
           <div className="row">
             <dt>Transaction</dt>
             <dd>
               <a
-                href={`${elysiumTestnet.blockExplorers.default.url}/transaction/${paid.hash}`}
+                href={`${elysiumTestnet.blockExplorers.default.url}/tx/${paid.hash}`}
                 target="_blank"
                 rel="noreferrer"
               >

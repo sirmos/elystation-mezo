@@ -15,8 +15,6 @@ import { BaseError, parseEventLogs } from "viem";
 import type { Address } from "viem";
 import { elysiumTestnet } from "@/lib/chain";
 import { ADDRESSES, elyMarketAbi, usdcAbi } from "@/lib/contracts";
-import { feeOverrides } from "@/lib/gas";
-import { LINKS } from "@/lib/links";
 import {
   DEADLINE_OPTIONS,
   REVIEW_CHOICES,
@@ -29,7 +27,11 @@ import LocalPrice from "./LocalPrice";
 
 const ZERO = "0x0000000000000000000000000000000000000000" as const;
 
-type Action = "faucet" | "approve" | "create";
+// MUSD on Mezo is borrowed against test BTC, so there is no faucet button.
+const GET_MUSD = "https://mezo.org/feature/borrow";
+const BTC_FAUCET = "https://faucet.test.mezo.org/";
+
+type Action = "approve" | "create";
 
 type Props = {
   provider: Address;
@@ -105,7 +107,6 @@ export default function HirePanel({ provider, title, price, onClose }: Props) {
 
   useEffect(() => {
     if (!receipt) return;
-    if (lastAction === "faucet") balanceQuery.refetch();
     if (lastAction === "approve") allowanceQuery.refetch();
     if (lastAction === "create") {
       const logs = parseEventLogs({
@@ -152,16 +153,6 @@ export default function HirePanel({ provider, title, price, onClose }: Props) {
     }
     setLastAction(next);
     try {
-      const fees = await feeOverrides(publicClient);
-      if (next === "faucet") {
-        writeContract({
-          address: ADDRESSES.usdc,
-          abi: usdcAbi,
-          functionName: "faucet",
-          chainId: elysiumTestnet.id,
-          ...fees,
-        });
-      }
       if (next === "approve") {
         writeContract({
           address: ADDRESSES.usdc,
@@ -169,7 +160,6 @@ export default function HirePanel({ provider, title, price, onClose }: Props) {
           functionName: "approve",
           args: [ADDRESSES.elyMarket, price],
           chainId: elysiumTestnet.id,
-          ...fees,
         });
       }
       if (next === "create") {
@@ -181,7 +171,6 @@ export default function HirePanel({ provider, title, price, onClose }: Props) {
           functionName: "createDeal",
           args: [provider, price, title, deadline, BigInt(chosen)],
           chainId: elysiumTestnet.id,
-          ...fees,
         });
       }
     } catch (err) {
@@ -208,35 +197,42 @@ export default function HirePanel({ provider, title, price, onClose }: Props) {
         disabled={switching}
         onClick={() => switchChain({ chainId: elysiumTestnet.id })}
       >
-        Switch to Elysium
+        Switch to Mezo
       </button>
     );
   } else if (balance < price) {
     main = (
       <>
         <p className="notice">
-          Your balance is {money(balance)} USDC. This job needs {money(price)}{" "}
-          USDC.
+          Your balance is {money(balance)} MUSD. This job needs {money(price)}{" "}
+          MUSD.
         </p>
-        <button
+        <a
           className="btn btn-primary btn-block"
-          disabled={busy}
-          onClick={() => send("faucet")}
+          href={GET_MUSD}
+          target="_blank"
+          rel="noreferrer"
         >
-          {busy ? busyLabel : "Get 1,000 test USDC"}
-        </button>
+          Get MUSD on Mezo
+        </a>
         <p className="hint">
-          Test USDC is free on this testnet. You also need a little HYPE for
-          network fees.{" "}
+          On the Mezo testnet, you get MUSD by borrowing against test BTC. You
+          also need a little test BTC for network fees.{" "}
           <a
-            href={LINKS.faucet}
+            href={BTC_FAUCET}
             target="_blank"
             rel="noreferrer"
             style={{ textDecoration: "underline" }}
           >
-            Get free test HYPE
+            Get free test BTC
           </a>
         </p>
+        <button
+          className="link-button"
+          onClick={() => balanceQuery.refetch()}
+        >
+          I have MUSD now. Refresh my balance
+        </button>
       </>
     );
   } else if (allowance < price) {
@@ -247,10 +243,10 @@ export default function HirePanel({ provider, title, price, onClose }: Props) {
           disabled={busy}
           onClick={() => send("approve")}
         >
-          {busy ? busyLabel : `Approve ${money(price)} USDC`}
+          {busy ? busyLabel : `Approve ${money(price)} MUSD`}
         </button>
         <p className="hint">
-          First, approve USDC for this job. Then you can pay into the contract.
+          First, approve MUSD for this job. Then you can pay into the contract.
         </p>
       </>
     );
@@ -262,7 +258,7 @@ export default function HirePanel({ provider, title, price, onClose }: Props) {
           disabled={busy}
           onClick={() => send("create")}
         >
-          {busy ? busyLabel : `Pay ${money(price)} USDC and hold it`}
+          {busy ? busyLabel : `Pay ${money(price)} MUSD and hold it`}
         </button>
         <p className="hint">
           The money waits in the contract. It is not sent to the provider yet.
@@ -275,7 +271,7 @@ export default function HirePanel({ provider, title, price, onClose }: Props) {
     <div className="hire">
       <div className="hire-head">
         <h3>
-          Hire for {money(price)} USDC
+          Hire for {money(price)} MUSD
           <LocalPrice value={price} />
         </h3>
         <button className="link-button" onClick={onClose}>
@@ -309,7 +305,7 @@ export default function HirePanel({ provider, title, price, onClose }: Props) {
       <dl className="inv-rows">
         <div className="row">
           <dt>Held by the contract</dt>
-          <dd>{money(price)} USDC</dd>
+          <dd>{money(price)} MUSD</dd>
         </div>
         <div className="row">
           <dt>Fee when paid out</dt>
@@ -327,7 +323,7 @@ export default function HirePanel({ provider, title, price, onClose }: Props) {
 
       {fee.qualifies && (
         <p className="hint">
-          Lower fee: this provider holds ELYST, so the fee is {bpsText(fee.discountBps)}{" "}
+          Lower fee: this provider holds MEZO, so the fee is {bpsText(fee.discountBps)}{" "}
           instead of {bpsText(fee.baseBps)}.
         </p>
       )}
