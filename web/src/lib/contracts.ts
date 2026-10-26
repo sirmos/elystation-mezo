@@ -2,17 +2,20 @@ import { parseAbi } from "viem";
 import type { Address } from "viem";
 
 export const ADDRESSES = {
-  usdc: "0x4CD746962FEFEFfa2fcc5cced7B27BC47FE3890B" as Address,
-  elyPay: "0x68Aa5b7A6A755b2FcfB1a94E253E4Ab92Ad9cBb4" as Address,
-  elyMarket: "0x446d38615086cbD9DF9678B9C298E5181d1D14aC" as Address,
-  // Paste the test ELYST address from deployElyst.js here.
-  elyst: "0x83302446E2CCDE23fa727df984FB0e7483e6148e" as Address,
+  // MUSD on Mezo testnet (official)
+  usdc: "0x118917a40FAF1CD7a13dB0Ef56C86De7973Ac503" as Address,
+  // Elystation contracts on Mezo testnet
+  elyPay: "0x1e77f007C75e126659B73593cd0B92885e28e111" as Address,
+  elyMarket: "0x1A7B5f4364afB7288AA12792f7406029C1062cbf" as Address,
+  // MEZO token on Mezo testnet (used for the fee discount)
+  elyst: "0x7B7c000000000000000000000000000000000001" as Address,
 };
 
-export const USDC_DECIMALS = 6;
+// Names kept so other files keep working. The asset is now MUSD (18 decimals).
+export const USDC_DECIMALS = 18;
 export const ELYST_DECIMALS = 18;
 
-// Block where the contracts were created. Zero works on this network.
+// Block of your first Mezo deployment. Leave 0 until you know it.
 export const DEPLOY_BLOCK = BigInt(0);
 
 export const elyPayAbi = parseAbi([
